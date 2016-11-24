@@ -13,7 +13,7 @@ boardmanager_choose
 LATEST_PACKAGE="$work_dir/download/ArchLinuxARM-${BOARD}.tar.gz"
 
 if [ -d "$work_dir/root/var" ]; then
-   echo "Current root $work_dir/root not empty! Please manually delete it to start with a fresh rootfs." 1>&2
+   echo "Current root $work_dir/root not empty! Please manually delete, rename or move the work dir to start with a fresh rootfs (and choose another board)." 1>&2
    exit 1
 fi
 
@@ -32,4 +32,4 @@ echo "New Machine ID:"
 ./chroot "cat /etc/machine-id"
 ./chroot "ssh-keygen -A"
 
-echo "rootfs in ./root ready!"
+echo "rootfs in $work_dir/root ready!"

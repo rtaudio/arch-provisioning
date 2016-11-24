@@ -1,22 +1,5 @@
 board_archlinux_latest_url () {	
-	echo "http://os.archlinuxarm.org/os/ArchLinuxARM-odroid-x2-latest.tar.gz"
-}
-
-board_architecture() {
-	echo "armv7h"
-}
-
-board_rootfs_make() {
-	echo "creating 64bit fs on $1"
-	mkfs.ext4 -O ^metadata_csum,^64bit $1 || mkfs.ext4 $1
-}
-
-# ($1:sdX)
-board_flash_bootloader() {
-	d=$PWD
-	cd $work_dir/root/boot
-	$d/boards/sd_fusing.sh $1
-	cd $d
+	echo "http://archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz"
 }
 
 # ($1:sdX)
@@ -31,6 +14,11 @@ board_cmdline_get () {
 # ($1:cmdline)
 board_cmdline_set () {	
 	echo $1
+}
+
+# ($1:imagefile)
+board_initramfs_set() {
+	config.txt initramfs archfs-linux.img.gz
 }
 
 # ($1:toolchains_base_dir)
@@ -57,5 +45,7 @@ board_kernel_build_command() {
 	echo ""
 }
 
-
+board_architecture() {
+	echo "armv7h"
+}
 

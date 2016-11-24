@@ -1,4 +1,10 @@
 # rpi-low-latency-audio
+
+To start over, delete, rename or move the /work dir. Then:
+* `./rootfs-init` : Choose your board, it will then download the latest archlinux image
+* ./sdcard-prepare
+* ./rootfs-sync-to-sdcard
+
 This is a toolset to create headless embedded systems with a ligheight Arch Linux that boots within seconds and performs real-time tasks. It is currently tested with the Raspberry PI 2, but due to its generality it should run on other ARM SoCs too.
 
 It's initial focus is on real-time audio processing.
