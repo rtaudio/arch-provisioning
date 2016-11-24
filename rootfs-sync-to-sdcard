@@ -1,0 +1,40 @@
+#!/bin/bash
+
+
+. ./functions.sh
+require_root && require_rootfs_initialized
+
+#rm -r mnt/root/*
+
+
+
+if [[ -z "`mount | grep mnt/boot`" ]]; then
+	echo "SD not mounted correctly!"
+	echo "Run ./sdcard-mount"
+	exit 1
+fi
+
+echo "rsync boot..."
+rsync -r -u -t "$work_dir/root/boot/" ./mnt/boot/
+
+if [[ -d ./conf ]]; then
+	echo "rsync conf (update only)..."
+	rsync -r -u -t  ./conf/ ./mnt/conf/
+else
+	echo "No ./conf, skipping!"
+fi
+
+#echo "Copying root (no-clobber!)..."
+#cp -n -r --no-dereference --preserve=all root/* mnt/root/
+
+echo "rsync root..."
+rsync -a --progress "$work_dir/root/" ./mnt/root/
+
+echo "rsync done, sync ..."
+sync
+
+echo "SD card ready to boot!"
+echo "Unmount it with ./sdcard-unmount"
+exit 0
+
+

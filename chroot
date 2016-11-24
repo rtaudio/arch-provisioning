@@ -1,0 +1,48 @@
+#!/bin/bash
+
+CHROOT_CMD=$1
+
+set -e
+
+. ./functions.sh
+require_root
+
+[[ -z "$ROOTFS" ]] && ROOTFS="$work_dir/root"
+CHROOT_ROOT="$work_dir/root_chroot_tmp"
+
+
+#update-binfmts --import
+#update-binfmts --enable
+
+cat /proc/sys/fs/binfmt_misc/qemu-arm > /dev/null || (echo "qemu-arm binfmt not existing!"; exit 1)
+
+cp -u /usr/bin/qemu-arm-static $ROOTFS/usr/bin
+
+# resolv.conf
+[[ -h $ROOTFS/etc/resolv.conf ]] \
+	&& mv $ROOTFS/etc/resolv.conf $ROOTFS/etc/resolv.conf.bak \
+	&& cp /etc/resolv.conf $ROOTFS/etc/
+
+echo "bind $ROOTFS $CHROOT_ROOT "
+mkdir -p $CHROOT_ROOT
+mount -o bind $ROOTFS $CHROOT_ROOT
+mount -t proc proc $CHROOT_ROOT/proc
+mount -t sysfs sys $CHROOT_ROOT/sys
+mount -o bind /dev $CHROOT_ROOT/dev
+
+set +e
+echo "Starting emulated chroot..."
+chroot $CHROOT_ROOT $CHROOT_CMD || echo "ERROR in chroot!"
+
+
+
+sleep 0.1
+umount $CHROOT_ROOT/proc
+umount $CHROOT_ROOT/sys
+umount $CHROOT_ROOT/dev
+umount $CHROOT_ROOT
+rmdir $CHROOT_ROOT
+
+rm $ROOTFS/etc/resolv.conf
+mv $ROOTFS/etc/resolv.conf.bak $ROOTFS/etc/resolv.conf
+

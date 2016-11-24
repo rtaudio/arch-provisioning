@@ -1,0 +1,47 @@
+MINIFY_ROOT=$1
+
+
+RM_PKGS="`cat lib/remove_packages.txt`"
+RM_PKGS_NODEPS="perl db texinfo"
+
+if [[ -z "$MINIFY_ROOT" ]]; then
+	echo "dest not set!"
+fi;
+
+if [[ ! -d "$MINIFY_ROOT/var" ]]; then
+	echo "$MINIFY_ROOT is not a root dir!"
+fi;
+
+
+. ./functions.sh
+require_root
+
+
+echo "Will minify in $MINIFY_ROOT"
+sleep 3
+
+echo "Minify in chroot..."
+
+echo "echo 'started minification'" > $MINIFY_ROOT/tmp/minify.sh
+for p in $RM_PKGS; do
+	echo "Package $p..."
+	echo "pacman -Rc $p --noconfirm 2> /dev/null" >> $MINIFY_ROOT/tmp/minify.sh
+done
+
+echo "pacman -Rdd $RM_PKGS_NODEPS --noconfirm" >> $MINIFY_ROOT/tmp/minify.sh 
+echo "pacman -Scc --noconfirm" >> $MINIFY_ROOT/tmp/minify.sh 
+echo "pacman -R sqlite gnupg gpgme pacman" >> $MINIFY_ROOT/tmp/minify.sh 
+
+echo "/sbin/ldconfig -X && systemctl mask ldconfig.service" >> $MINIFY_ROOT/tmp/minify.sh 
+
+#generate machine-id and /etc/ssh/ssh_host_rsa_key.pub
+echo "systemd-machine-id-setup && ssh-keygen -A" >> $MINIFY_ROOT/tmp/minify.sh 
+
+
+chmod +x $MINIFY_ROOT/tmp/minify.sh
+ROOTFS=$MINIFY_ROOT ./chroot "/tmp/minify.sh"
+rm $MINIFY_ROOT/tmp/minify.sh
+
+rm -r $MINIFY_ROOT/var/log/*
+
+#baobab $MINIFY_ROOT &

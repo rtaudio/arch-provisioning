@@ -1,0 +1,13 @@
+[Unit]
+Description=RT-Audio WiFi Service
+After=network.target rtaudio-config.service
+
+[Service]
+Type=simple
+ExecStart=/home/rtaudio/rtaudio-wifi.sh
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=4
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+#
+/*.gz
+*~
+/mnt
+/.~*
+/root_*
+/root/home/rtaudio
+/archfs.img
+/archfs.lzo
+/archfs_min.img
+/archfs_min.lzo
+
+/root/root/.bash_history
+/work
+

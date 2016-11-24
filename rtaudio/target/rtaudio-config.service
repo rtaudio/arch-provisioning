@@ -1,0 +1,13 @@
+[Unit]
+Description=RT-Audio update config
+After=systemd-tmpfiles-setup.service
+
+[Service]
+Type=simple
+ExecStart=/home/rtaudio/rtaudio-config.sh
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=local-fs.target

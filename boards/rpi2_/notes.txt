@@ -1,0 +1,3 @@
+udevadm info --attribute-walk -n /dev/mmcblk0 | grep 'DRIVERS=="[^"]'
+    DRIVERS=="mmcblk"
+    DRIVERS=="mmc-bcm2835"

@@ -1,0 +1,45 @@
+[Unit]
+Description=JACK2
+After=sound.target rtaudio-config.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/jackd --realtime -P70 --sync -dalsa -dhw:${ALSA_HW},0 -r${SAMPLE_RATE} -p${BLOCK_SIZE} -n2 -i${NUM_INPUTS} -o${NUM_OUTPUTS} -s
+KillSignal=SIGINT
+Restart=on-failure
+RestartSec=5
+EnvironmentFile=/tmp/jackd.env
+
+Nice=-20
+# -20 highest
+
+IOSchedulingClass=realtime
+# realtime
+
+IOSchedulingPriority=0
+# 0 highets
+
+CPUSchedulingPolicy=fifo
+# fifo/rr
+
+CPUSchedulingPriority=50
+# 99 highets
+
+TimerSlackNSec=1
+#ns schedule granularity
+
+LimitMEMLOCK=infinity
+LimitLOCKS=infinity
+
+LimitNICE=0
+# acutual limit = LimitNICE-20
+
+LimitRTPRIO=99
+# 99 highest
+
+LimitRTTIME=4000000
+#us, prevents locking the system
+
+[Install]
+WantedBy=sysinit.target
+

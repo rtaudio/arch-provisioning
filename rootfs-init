@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# This is the first thing to do.
+# Downloads latest archlinux package, extract it, generate unique machine id in chroot and ssh keys
+#
+
+set -e
+. ./functions.sh
+
+require_root
+boardmanager_choose
+
+LATEST_PACKAGE="$work_dir/download/ArchLinuxARM-${BOARD}.tar.gz"
+
+if [ -d "$work_dir/root/var" ]; then
+   echo "Current root $work_dir/root not empty! Please manually delete it to start with a fresh rootfs." 1>&2
+   exit 1
+fi
+
+wget -O "$LATEST_PACKAGE" -c -N `board_archlinux_latest_url`
+
+
+bsdtar --version &> /dev/null || install_package bsdtar
+bsdtar -xpf $LATEST_PACKAGE -C "$work_dir/root"
+
+# full system upgrade: not stable in emulated chroot! do this on the device!
+#./chroot "pacman -Syu --noconfirm"
+
+#generate machine-id and /etc/ssh/ssh_host_rsa_key.pub
+./chroot "systemd-machine-id-setup"
+echo "New Machine ID:"
+./chroot "cat /etc/machine-id"
+./chroot "ssh-keygen -A"
+
+echo "rootfs in ./root ready!"

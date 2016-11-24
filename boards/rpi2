@@ -1,0 +1,51 @@
+board_archlinux_latest_url () {	
+	echo "http://archlinuxarm.org/os/ArchLinuxARM-rpi-2-latest.tar.gz"
+}
+
+# ($1:sdX)
+board_sdcard_prepare () {	
+	echo $1
+}
+
+board_cmdline_get () {	
+	echo $1
+}
+
+# ($1:cmdline)
+board_cmdline_set () {	
+	echo $1
+}
+
+# ($1:imagefile)
+board_initramfs_set() {
+	config.txt initramfs archfs-linux.img.gz
+}
+
+# ($1:toolchains_base_dir)
+board_crosscompile_toolchain_get_path() {
+	echo "$1/raspberrypi"
+}
+
+# ($1:targetdir)
+board_crosscompile_toolchain_install() {
+	git clone https://github.com/raspberrypi/tools "$1/raspberrypi"
+}
+
+# ($1:toolchaindir)
+board_crosscompile_get() {
+	echo "$1/raspberrypi/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin/arm-linux-gnueabihf-"
+}
+
+board_kernel_image_path() {
+	echo "/boot/kernel7.img"
+}
+
+
+board_kernel_build_command() {
+	echo ""
+}
+
+board_architecture() {
+	echo "armv7h"
+}
+

@@ -1,0 +1,120 @@
+#!/bin/bash
+set -e
+
+. ./functions.sh
+require_root && boardmanager_choose && boardmanager_hostname_ask
+
+INITRAMFS_IMAGE="/boot/archfs-linux.img.gz"
+
+IMG_FILE="${PWD}/root/boot/archfs"
+LIST_FILE="${PWD}/._img_list"
+ROOTFS_COMP="lz4"
+
+
+# build the initramfs image
+cp lib/initcpio-hooks/tmpfs root/usr/lib/initcpio/hooks/tmpfs
+cp lib/initcpio-hooks/tmpfs_install root/usr/lib/initcpio/install/tmpfs
+KVER=`ls root/lib/modules | head -n1`
+echo "Kernel Version $KVER"
+[[ -f root/usr/bin/mkinitcpio ]] || ./chroot "pacman -S mkinitcpio --noconfirm"
+./chroot "mkinitcpio -k $KVER -S fsck -A tmpfs -g $INITRAMFS_IMAGE"
+echo "Note: 'Unsupported ioctl: cmd=0xffffffff80046601' can be ignored"
+
+# re-extract for analysis
+rm -r -f work/boot_archfs_extracted
+mkdir -p work/boot_archfs_extracted
+cd  work/boot_archfs_extracted
+cat ../../root/$INITRAMFS_IMAGE | gzip -d | cpio -idv &> /dev/null
+cd ../..
+#baobab ./work/boot_archfs_extracted/ &> /dev/null &
+
+# build rootfs image
+EXCLUDES=""
+EXCLUDES_REGEX=""
+REPLY="y"
+#read -p "Minify image (no dev tools, some modules missing, invalid package state)? (y/n) " -n 1 -r
+echo ""
+if [[ $REPLY == y ]]
+then
+	EXCLUDES=`cat "./lib/exclude_list.txt"`
+	EXCLUDES_REGEX=`cat "./lib/exclude_list_regex.txt"`
+	echo ""
+	echo "Exlucde list:"
+	echo $EXCLUDES $EXCLUDES_REGEX
+	echo ""
+
+	echo "Creating copy of rootfs in ./root_min/..."
+	rsync -a --delete-before ./root/ ./root_min/
+	echo "copy done."
+	./minify-rootfs ./root_min/
+	ROOTFS=./root_min/
+else
+	ROOTFS=./root/
+fi
+
+prepfs_findfiles $ROOTFS $LIST_FILE
+
+if [ -z $1 ]; then
+  COMPRESSION=lz4
+else
+  COMPRESSION=$1
+fi
+echo "Archive compression: $COMPRESSION"
+echo ""
+
+
+cp $LIST_FILE ${LIST_FILE}_full
+
+echo "Filtering..."
+
+strt="`cat $LIST_FILE`"
+
+for exp in $EXCLUDES; do
+	echo "Filtering $exp"
+	strt="`echo \"$strt\" | grep -v $exp`"
+done
+
+echo ""
+echo "Filtering with regex..."
+for exp in $EXCLUDES_REGEX; do
+	echo "Filtering $exp"
+	strt="`echo \"$strt\" | grep -v -E $exp`"
+done
+
+echo "$strt" >$LIST_FILE
+
+# make sure xterm is included
+if [[ -z "`cat $LIST_FILE | grep x/xterm`" ]]; then
+ echo ./usr/share/terminfo >>$LIST_FILE
+ echo ./usr/share/terminfo/x >>$LIST_FILE
+ echo ./usr/share/terminfo/x/xterm >>$LIST_FILE
+fi
+
+echo "Filtering done."
+
+nlines=`wc -l $LIST_FILE | cut -d ' ' -f 1`
+bs=`expr $nlines / 4`
+echo "N_files = $nlines, bs = $bs"
+
+
+cd $ROOTFS
+if [ "$COMPRESSION" = "lzo" ]; then
+  echo "Creating archfs.lzo with lzo compression... "
+  cat $LIST_FILE  | cpio -o -H newc | lzop -1 > ${IMG_FILE}.lzo
+  stat ${IMG_FILE}.lzo
+elif [ "$COMPRESSION" = "lz4" ]; then
+  echo "Creating archfs.lz4 with lz4 -9 compression... "
+  cat $LIST_FILE  | cpio -o -H newc | lz4c -9 > ${IMG_FILE}.lz4
+  stat ${IMG_FILE}.lz4
+else
+  echo -n "Creating archfs.img without compression... "
+  cat $LIST_FILE | cpio -o -H newc > ${IMG_FILE}.img
+  cd ..
+  rm -r -f root_archfs_extracted
+  mkdir -p root_archfs_extracted && cd  root_archfs_extracted && cpio -idv <  ${IMG_FILE}.img &> /dev/null
+  baobab  ./  &> /dev/null &
+fi
+
+# to extract: mkdir -p root_archfs_extracted && cd  root_archfs_extracted && cpio -idv <  ${IMG_FILE}.img
+
+
