@@ -98,3 +98,8 @@ prepfs_findfiles () {
   
   wc -l $LIST_FILE
 }
+
+function_exists() {
+    declare -f -F $1 > /dev/null
+    return $?
+}
