@@ -20,7 +20,7 @@ For the ARM system it has:
 
 # Getting started
 
-Clone this repo on a linux host (required packages on host: ```bsdtar sshfs qemu binfmt-support qemu-user-static``` )
+Recursively clone this repo on a linux host (required packages on host: ```bsdtar sshfs qemu binfmt-support qemu-user-static``` )
 
 * `./rootfs-init` : Choose your board, it will then download the latest Arch Linux ARM image
 * `./sdcard-prepare` while downloading, run this to initialize an SD card (SD card will be erased!)
