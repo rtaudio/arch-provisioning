@@ -44,6 +44,10 @@ else
 	FC="o\nn\np\n1\n\n+300M\nt\nc\nn\np\n2\n\n+2500M\nn\np\n3\n\n+50M\nt\n3\nc\nw"
 fi
 
+# zero beginning of sd card
+dd if=/dev/zero of=/dev/$DEV bs=1M count=8
+sync
+
 echo -e "FDISK cmd:"
 echo $FC
 

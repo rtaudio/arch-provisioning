@@ -1,3 +1,35 @@
+# What for?
+
+This is a toolset to quickly install Arch Linux optimized for real-time DSP on ARM embedded systems. It currently contains provisioning scripts for the Raspberry Pi 1/2/3 and ODROID-X2. You can add any (platform supported)[https://archlinuxarm.org/platforms] by Arch Linux.
+Arch provisioning contains tools for minimizing boot times (5-10 seconds).
+
+# Aims
+
+
+This is a toolset to create headless embedded systems with a ligheight Arch Linux that boots within seconds and performs real-time tasks. It is currently tested with the Raspberry PI 2, but due to its generality it should run on other ARM SoCs too.
+
+It's initial focus is on real-time audio processing.
+
+* easy Wi-Fi adapter management that automatically creates a hotspot if no wireless network is available. The SoC will always be accessible, even without any network infrastructure or cable (only a WI-Fi USB dongle is needed)
+* It can boot into a RAM disk so the SD-Card module can be disabled. This increases real-time reliability
+
+
+This repo includes:
+* Generic Toolchain for partition of SD-Card and incremental arch linux deployment
+* Minifier to reduce the compelete OS size to about 200MB (for small ramfs images)
+* Custom systemd services for initial boot automation
+* WiFi hotspot and WiFi client management
+* A QEMU-emulated chroot script to chroot into the embedded root file system on any non-ARM (x68/x64) linux  host system (e.g. to install additional packages through pacman)
+* Configuration service that enables configuration through a FAT-partition from a Windows machine
+* Some boot optimization techniques (not all possible). The aim is to get the system to boot within 5 seconds
+
+You will never need to do any manual configuration/SSH connection to the embedded system. Comfortably prepare/maintain the OS on your linux machine or virtual machine. Changes can be deployed quickly through an icremental sync with the SD-Card or over SSH.
+
+
+
+
+
+
 
 # Everything todo below:
 This repo includes:
