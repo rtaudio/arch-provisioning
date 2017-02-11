@@ -35,7 +35,7 @@ then
   CNF="`cat /tmp/create_ap.conf`"
     if [[ ! -z "$CNF" && -f /usr/bin/create_ap ]]; then
       echo "create_ap $CNF"
-      /usr/bin/create_ap $CNF
+      /usr/bin/create_ap $CNF || /usr/bin/create_ap $CNF --no-virt
     fi
 fi
 

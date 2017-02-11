@@ -32,7 +32,7 @@ require_rootfs_initialized() {
 }
 
 boardmanager_current() {
-  cat $work_dir/current_board 2> /dev/null || echo ""
+  cat "$work_dir/current_board" 2> /dev/null || echo ""
 }
 
 boardmanager_choose() {
@@ -42,7 +42,7 @@ boardmanager_choose() {
 		read BOARD
 		if [[ -f "boards/$BOARD" ]]; then
 			mkdir -p root
-			echo $BOARD > $work_dir/current_board
+			echo $BOARD > "$work_dir/current_board"
 		fi
 	done;
 
