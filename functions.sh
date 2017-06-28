@@ -103,3 +103,11 @@ function_exists() {
     declare -f -F $1 > /dev/null
     return $?
 }
+
+
+ap_deploy_target_config() {
+	[ -z "$1" ] && $1="$root_dir/target-config/*"
+	echo "updating config (src=$1, dst=root/boot)..."
+	cp --preserve=timestamps -r -u -v "$1" "$work_dir/root/boot/"
+	echo "   done!"
+}

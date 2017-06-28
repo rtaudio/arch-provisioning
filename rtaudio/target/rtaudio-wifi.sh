@@ -24,6 +24,8 @@ done
 
 echo "rtaudio: wifi start ..."
 
+# TODO: check if no ESSID
+#line=$(head -n 1 filename)
 #first try to connect using a netctl profile
 if [ ! -f /tmp/rtaudio-wifi ] || ( ! /usr/bin/netctl start rtaudio-wifi && sleep 1 && ! /usr/bin/netctl start rtaudio-wifi )
 then

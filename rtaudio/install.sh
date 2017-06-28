@@ -26,7 +26,8 @@ mkdir -p $RTAHOME
 
 cp -a -r ./rtaudio/target/* $RTAHOME
 chmod +x $RTAHOME/*.sh
-cp --preserve=timestamps -r -u -n $RTAHOME/rtaudio-config $ROOTFS/boot/
+ap_deploy_target_config $RTAHOME/rtaudio-config
+ap_deploy_target_config $root_dir/target-config/rtaudio-config
 rm -r $RTAHOME/rtaudio-config
 
 if [[ -z $SSH_HOST ]]; then
